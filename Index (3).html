@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Meditación Ondas Alfa - Coherencia Cuántica</title>
+    <style>
+        body { margin: 0; background: #010409; color: #4facfe; font-family: 'Segoe UI Light', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+        .container { width: 420px; padding: 30px; border: 1px solid #1a3a5a; border-radius: 20px; background: rgba(0,8,15,0.95); text-align: center; box-shadow: 0 0 50px rgba(0, 180, 216, 0.3); }
+        
+        /* Núcleo de luz central */
+        .core { width: 12px; height: 12px; background: #fff; border-radius: 50%; margin: 0 auto 30px; box-shadow: 0 0 80px 20px #4facfe; opacity: 0.1; }
+        .active-pulse { animation: breathe 12s infinite ease-in-out; opacity: 0.8; }
+        @keyframes breathe { 0%, 100% { transform: scale(1); filter: blur(5px); } 50% { transform: scale(16); filter: blur(2px); } }
+
+        .player-section { background: rgba(255,255,255,0.03); padding: 18px; border-radius: 12px; margin-bottom: 20px; border: 1px solid rgba(79, 172, 254, 0.1); }
+        .label { font-size: 0.7rem; letter-spacing: 2px; margin-bottom: 12px; display: block; color: #88c0d0; font-weight: bold; }
+        
+        .controls { display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; }
+        button { background: none; border: 1px solid #4facfe; color: #4facfe; padding: 8px 18px; cursor: pointer; border-radius: 5px; font-size: 0.75rem; transition: 0.3s; min-width: 80px; }
+        button:hover { background: #4facfe; color: #000; box-shadow: 0 0 15px #4facfe; }
+        button.active { background: #4facfe; color: #000; }
+
+        .vol-slider { width: 100%; cursor: pointer; accent-color: #4facfe; margin-top: 5px; }
+        #status { font-size: 0.8rem; color: #555; height: 1.2em; text-transform: uppercase; margin-top: 15px; letter-spacing: 1px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div id="visual-core" class="core"></div>
+
+    <div class="player-section">
+        <span class="label">MÚSICA ONDAS ALFA</span>
+        <div class="controls">
+            <button onclick="playMusic()">PLAY</button>
+            <button onclick="pauseMusic()">PAUSA</button>
+            <button onclick="stopMusic()">STOP</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:10px">VOL</span>
+            <input type="range" class="vol-slider" id="musicVol" min="0" max="1" step="0.01" value="0.5" oninput="updateMusicVol()">
+        </div>
+    </div>
+
+    <div class="player-section">
+        <span class="label">VOZ GUÍA DISPENZA</span>
+        <div class="controls">
+            <button id="vPlay" onclick="startVoice()">INICIAR</button>
+            <button id="vPause" onclick="pauseVoice()">PAUSAR</button>
+            <button onclick="stopVoice()">STOP</button>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+            <span style="font-size:10px">VOL</span>
+            <input type="range" class="vol-slider" id="voiceVol" min="0" max="1" step="0.01" value="1" oninput="updateVoiceVol()">
+        </div>
+    </div>
+    
+    <div id="status">Sincroniza e inicia la reprogramación</div>
+</div>
+
+<audio id="bgAudio" loop preload="auto">
+    <source src="https://dl.dropboxusercontent.com/scl/fi/y1z52i2q3g9y1ajcaw8p5/Meditaci-n-de-5-minutos-con-m-sica-binaural-con-Ondas-Alfa-Calma-y-paz-interior-Med-Soul-Med-Soul.mp3?rlkey=j8elwp0uj6tpt0bxucu6eli57&dl=1" type="audio/mpeg">
+</audio>
+
+<script>
+    const music = document.getElementById('bgAudio');
+    const core = document.getElementById('visual-core');
+    const status = document.getElementById('status');
+    
+    let voicePaused = false;
+    let currentStep = 0;
+    let timer;
+
+    const guion = [
+        { t: "Cierra los ojos. Conviértete en nada. Sé nadie... en ningún lugar... en ningún tiempo.", p: 10000 },
+        { t: "Siente el espacio que ocupan tus sienes en el vacío. Siente la oscuridad detrás de tus ojos.", p: 12000 },
+        { t: "Lleva tu atención al centro de tu pecho. Respira a través de tu corazón.", p: 12000 },
+        { t: "Siente gratitud pura ahora. Visualiza tus arterias relajándose. La sangre fluye como seda.", p: 20000 },
+        { t: "Tu presión arterial es perfecta. Eres salud. Eres coherencia.", p: 20000 },
+        { t: "Descansa en este vacío. Recibe tu nueva vida. Shalom.", p: 10000 }
+    ];
+
+    function playMusic() { music.play(); status.innerText = "Música activa"; }
+    function pauseMusic() { music.pause(); status.innerText = "Música en pausa"; }
+    function stopMusic() { music.pause(); music.currentTime = 0; status.innerText = "Música detenida"; }
+    function updateMusicVol() { music.volume = document.getElementById('musicVol').value; }
+
+    function startVoice() {
+        window.speechSynthesis.cancel();
+        voicePaused = false;
+        core.classList.add('active-pulse');
+        document.getElementById('vPlay').classList.add('active');
+        document.getElementById('vPause').classList.remove('active');
+        hablar(currentStep);
+    }
+
+    function pauseVoice() {
+        voicePaused = true;
+        window.speechSynthesis.cancel();
+        document.getElementById('vPause').classList.add('active');
+        document.getElementById('vPlay').classList.remove('active');
+        core.classList.remove('active-pulse');
+        status.innerText = "Guía en pausa";
+    }
+
+    function stopVoice() {
+        voicePaused = true;
+        currentStep = 0;
+        window.speechSynthesis.cancel();
+        clearTimeout(timer);
+        core.classList.remove('active-pulse');
+        document.getElementById('vPlay').classList.remove('active');
+        document.getElementById('vPause').classList.remove('active');
+        status.innerText = "Guía finalizada";
+    }
+
+    function hablar(index) {
+        if (voicePaused || index >= guion.length) return;
+        currentStep = index;
+
+        const msg = new SpeechSynthesisUtterance(guion[index].t);
+        msg.lang = 'es-ES';
+        msg.rate = 0.65;
+        msg.pitch = 0.75;
+        msg.volume = document.getElementById('voiceVol').value;
+
+        const voices = window.speechSynthesis.getVoices();
+        const vozM = voices.find(v => v.lang.includes('es') && (v.name.includes('David') || v.name.includes('Pablo') || v.name.includes('Male')));
+        if (vozM) msg.voice = vozM;
+
+        msg.onstart = () => { status.innerText = "Voz: " + guion[index].t; };
+        msg.onend = () => {
+            if (!voicePaused) {
+                timer = setTimeout(() => hablar(index + 1), guion[index].p);
+            }
+        };
+
+        window.speechSynthesis.speak(msg);
+    }
+
+    window.speechSynthesis.onvoiceschanged = () => window.speechSynthesis.getVoices();
+</script>
+
+</body>
+</html>
